@@ -2,6 +2,8 @@
 
 A Domain-Specific Language (DSL) for Graph Data Models
 
+**DISCLAIMER**: Most of the code in this repository has been written by Github's Copilot.
+
 ## Overview
 
 gmdsl is a DSL and toolchain for defining, validating, and generating code for graph-based data models. It allows you to describe nodes, edges, types, and annotations in a concise, readable format, and then generate code or schema definitions for various platforms such as C# and Neo4j Cypher.

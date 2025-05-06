@@ -1,0 +1,37 @@
+// File: MyGraphDataModel.gm
+
+namespace BrainExpanded.GraphModel
+
+import GM.Core
+
+node Person {
+    firstName: String
+    lastName: String
+    dateOfBirth: DateTime
+    placeOfBirth: Location
+}
+
+node Company {
+    name: String
+    address: Address
+}
+
+node Department {
+    name: String
+}
+
+type Address {
+    street: String
+    city: String
+    state: String
+    zipcode: Integer
+    country: String
+}
+
+edge Friend(Person <-> Person) {
+    metOn: DateTime
+}
+
+edge WorksFor(Person -> Company) {
+    role: String
+}

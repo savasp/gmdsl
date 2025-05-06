@@ -1,0 +1,48 @@
+[project]
+name = "gmdsl"
+version = "0.1.0"
+description = "A Domain Specific Language for Graph Models"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+# Add other classifiers as needed: https://pypi.org/classifiers/
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Compilers",
+]
+dependencies = [
+    "lark-parser~=0.12.0", # Using compatible version
+    "click>=8.0",          # For the CLI
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "ruff"]
+
+[project.scripts]
+gmdsl = "gmdsl.cli:main" # Entry point for the CLI
+
+# Add entry points for plugins
+[project.entry-points."gmdsl.plugins"]
+debug = "gmdsl.plugins.debug_plugin:DebugGenerator"    # Updated path
+cypher = "gmdsl.plugins.cypher_plugin:CypherGenerator" # Add cypher plugin
+csharp = "gmdsl.plugins.csharp_plugin:CSharpGenerator"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"] # Removed 'plugins'
+
+[tool.ruff]
+# Optional: Configure Ruff linter/formatter
+line-length = 88
+
+[tool.black]
+# Optional: Configure Black formatter
+line-length = 88

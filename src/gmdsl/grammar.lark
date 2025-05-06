@@ -1,0 +1,55 @@
+?start: document
+
+document: _WSD? declaration* _WSD?
+
+?declaration: namespace_decl
+            | import_decl
+            | type_decl
+            | node_decl
+            | edge_decl
+            | annotation_decl
+
+// Declarations don't manage surrounding newlines anymore
+namespace_decl: "namespace" qualified_name
+import_decl: "import" qualified_name
+
+annotation_decl: "annotation" IDENTIFIER annotation_params?
+// Modified to avoid collision with annotation_args
+annotation_params: "(" _WSD? annotation_param_list? _WSD? ")"
+annotation_param_list: annotation_param (_WSD? "," _WSD? annotation_param)*
+annotation_param: IDENTIFIER ":" IDENTIFIER
+
+// Annotation usage - can be applied to nodes, edges, types, and properties
+annotation_usage: "@" IDENTIFIER annotation_args?
+// Modified to avoid collision with annotation_params
+annotation_args: "(" _WSD? annotation_arg_list? _WSD? ")"
+annotation_arg_list: annotation_arg (_WSD? "," _WSD? annotation_arg)*
+annotation_arg: (IDENTIFIER | STRING | NUMBER)
+
+type_decl: annotation_usage* "type" IDENTIFIER (type_body | ) // Optional body
+type_body: "{" _WSD? property_decl* _WSD? "}"
+
+node_decl: annotation_usage* "node" IDENTIFIER node_body // Mandatory body
+node_body: "{" _WSD? property_decl* _WSD? "}"
+
+edge_decl: annotation_usage* "edge" IDENTIFIER "(" IDENTIFIER edge_direction IDENTIFIER ")" (edge_body | ) // Optional body
+edge_body: "{" _WSD? property_decl* _WSD? "}"
+
+property_decl: annotation_usage* IDENTIFIER ":" IDENTIFIER // Newline/WS handled by ignore
+
+?edge_direction: "->" | "<->"
+
+qualified_name: IDENTIFIER ("." IDENTIFIER)*
+
+IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
+STRING: /"[^"]*"/
+NUMBER: /[0-9]+(\.[0-9]+)?/
+
+COMMENT: "//" /.*/
+
+// Define Whitespace, Newline, Comment group
+_NL: /(\r?\n)+/
+_WS: /[ \t]+/
+_WSD: (_WS | _NL | COMMENT)+ // Whitespace, Newlines, Comments
+
+%ignore _WSD // Ignore this group globally

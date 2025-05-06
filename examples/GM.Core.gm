@@ -1,0 +1,13 @@
+// File: Core.gm
+
+namespace GM.Core
+
+type Boolean
+type String
+type Integer
+type Float
+type DateTime
+type Location {
+    longitude: Float
+    latitude: Float
+}

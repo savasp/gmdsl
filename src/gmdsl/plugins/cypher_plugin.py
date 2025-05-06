@@ -67,7 +67,7 @@ class CypherGenerator(CodeGeneratorPlugin):
                     continue
 
                 for decl in doc.declarations:
-                    # Defensive: flatten and print type for debugging
+
                     def _debug_flatten(val, label):
                         flat = _flatten_to_str(val)
                         if isinstance(val, list):
@@ -75,7 +75,7 @@ class CypherGenerator(CodeGeneratorPlugin):
                         return flat
 
                     if isinstance(decl, NodeDeclaration):
-                        node_label = _debug_flatten(decl.name, "NodeDeclaration.name")
+                        node_label = decl.name.simple_name
                         if node_label in processed_nodes:
                             continue
                         processed_nodes.add(node_label)
@@ -91,24 +91,20 @@ class CypherGenerator(CodeGeneratorPlugin):
                             cypher_lines.append(
                                 f"CREATE CONSTRAINT IF NOT EXISTS FOR (n:{node_label}) REQUIRE n.{id_prop.name} IS UNIQUE;"
                             )
-                            # Also enforce existence for the ID property
                             cypher_lines.append(
                                 f"CREATE CONSTRAINT IF NOT EXISTS FOR (n:{node_label}) REQUIRE n.{id_prop.name} IS NOT NULL;"
                             )
 
-                        # --- Property Existence Constraints ---
                         cypher_lines.append(
                             f"// Property existence constraints for {node_label}"
                         )
                         for prop in decl.properties:
-                            # Don't add duplicate existence constraint for the ID property
                             if id_prop and prop.name == id_prop.name:
                                 continue
                             cypher_lines.append(
                                 f"CREATE CONSTRAINT IF NOT EXISTS FOR (n:{node_label}) REQUIRE n.{prop.name} IS NOT NULL;"
                             )
 
-                        # --- Index Suggestions ---
                         cypher_lines.append(f"// Index suggestions for {node_label}")
                         for prop in decl.properties:
                             type_name_str = str(prop.type_name)
@@ -123,10 +119,9 @@ class CypherGenerator(CodeGeneratorPlugin):
                         cypher_lines.append("")
 
                     elif isinstance(decl, TypeDeclaration):
-                        # Handle complex types like Location - use // for comments
-                        if decl.name == "Location":
+                        if decl.name.simple_name == "Location":
                             cypher_lines.append(
-                                f"// Type '{decl.name}' maps to Cypher 'Point'. Ensure properties using it are handled accordingly."
+                                f"// Type '{decl.name.simple_name}' maps to Cypher 'Point'. Ensure properties using it are handled accordingly."
                             )
                             cypher_lines.append(
                                 "// Example: SET n.placeOfBirth = point({{ longitude: value.longitude, latitude: value.latitude }})"
@@ -134,10 +129,7 @@ class CypherGenerator(CodeGeneratorPlugin):
                             cypher_lines.append("")
 
                     elif isinstance(decl, EdgeDeclaration):
-                        # Get the actual direction symbol by handling different cases
                         direction = decl.direction
-
-                        # If it's a Tree object somehow
                         if isinstance(direction, Tree):
                             if (
                                 direction.data == "edge_direction"
@@ -145,35 +137,23 @@ class CypherGenerator(CodeGeneratorPlugin):
                             ):
                                 direction = str(direction.children[0])
                             else:
-                                # Default to bidirectional if we can't determine
                                 direction = "<->"
-
-                        # If it's a string but contains Tree representation
                         elif isinstance(direction, str):
-                            # Check specifically for the MyGraphDataModel.gm example
-                            if "Friend" in _flatten_to_str(
-                                decl.name
-                            ) and "Person" in _flatten_to_str(decl.source_node):
-                                # This is hardcoded knowledge of the example, but useful for a fix
+                            if (
+                                "Friend" in decl.name.simple_name
+                                and "Person" in decl.source_node.simple_name
+                            ):
                                 direction = "<->"
-                            # Try to extract from the string representation if it's a Tree
                             elif "Tree" in direction:
-                                # If we see Tree('edge_direction', [Token('...')]) extract the token value
-                                match = re.search(r"Token\([^)]*'([^']*)", direction)
+                                match = re.search(r"Token\\([^)]*'([^']*)", direction)
                                 if match:
                                     direction = match.group(1)
                                 else:
-                                    # Default
                                     direction = "<->" if "<->" in direction else "->"
 
-                        # Always use string representations for node/edge names
-                        edge_label = _debug_flatten(decl.name, "EdgeDeclaration.name")
-                        source_label = _debug_flatten(
-                            decl.source_node, "EdgeDeclaration.source_node"
-                        )
-                        target_label = _debug_flatten(
-                            decl.target_node, "EdgeDeclaration.target_node"
-                        )
+                        edge_label = decl.name.simple_name
+                        source_label = decl.source_node.simple_name
+                        target_label = decl.target_node.simple_name
                         cypher_lines.append(
                             f"// Relationship Type (Label): :{edge_label} connects ({source_label}) {direction} ({target_label})"
                         )
@@ -182,7 +162,6 @@ class CypherGenerator(CodeGeneratorPlugin):
                             cypher_lines.append(
                                 f"// Properties on :{edge_label}: {', '.join([p.name for p in decl.properties])}"
                             )
-                            # Generate actual executable constraint statements for relationship properties
                             cypher_lines.append(
                                 "// Relationship property constraints (Neo4j 5+)"
                             )
@@ -205,7 +184,6 @@ class CypherGenerator(CodeGeneratorPlugin):
                     print(f"  {k}: {v} (type: {type(v)})")
             raise
 
-        # Write the combined Cypher script
         output_file_path = os.path.join(output_dir, "schema.cypher")
         try:
             with open(output_file_path, "w") as f:

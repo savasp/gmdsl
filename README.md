@@ -171,4 +171,4 @@ You can add your own plugins by creating a new Python file in `src/gmdsl/plugins
 
 ## License
 
-MIT
+Apache 2.0 (see [LICENSE](LICENSE) file)

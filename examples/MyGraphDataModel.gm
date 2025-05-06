@@ -44,6 +44,6 @@ edge Friend(Person <-> Person) {
     metOn: DateTime
 }
 
-edge WorksFor(Person -> Company) {
+edge Works(Person -> Company) {
     role: String
 }

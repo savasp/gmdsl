@@ -2,7 +2,7 @@
 
 A Domain-Specific Language (DSL) for Graph Data Models
 
-**DISCLAIMER**: Most of the code in this repository has been written by Github's Copilot.
+**DISCLAIMER**: Most of the code in this repository has been written by Github's Copilot. Copilot also generated most of this README.
 
 ## Overview
 

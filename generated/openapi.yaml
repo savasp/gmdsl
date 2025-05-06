@@ -1,0 +1,211 @@
+info:
+  description: OpenAPI spec for GMDSL Graph API
+  title: GMDSL Graph API
+  version: 1.0.0
+paths:
+  /people:
+    post:
+      summary: Create Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/person'
+      responses:
+        '201':
+          description: Created
+  /people/{node-id}:
+    get:
+      summary: Get Person by ID
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update Person by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/person'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete Person by ID
+      responses:
+        '204':
+          description: Deleted
+  /companies:
+    post:
+      summary: Create Company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/company'
+      responses:
+        '201':
+          description: Created
+  /companies/{node-id}:
+    get:
+      summary: Get Company by ID
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update Company by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/company'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete Company by ID
+      responses:
+        '204':
+          description: Deleted
+  /departments:
+    post:
+      summary: Create Department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/department'
+      responses:
+        '201':
+          description: Created
+  /departments/{node-id}:
+    get:
+      summary: Get Department by ID
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update Department by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/department'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete Department by ID
+      responses:
+        '204':
+          description: Deleted
+  /people/{node-id}/friends:
+    post:
+      summary: Create Friend from Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/friend'
+      responses:
+        '201':
+          description: Created
+  /people/{node-id}/friends/{relationship-id}:
+    get:
+      summary: Get Friend by ID
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update Friend by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/friend'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete Friend by ID
+      responses:
+        '204':
+          description: Deleted
+  /people/{node-id}/work:
+    post:
+      summary: Create Works from Person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/works'
+      responses:
+        '201':
+          description: Created
+  /people/{node-id}/work/{relationship-id}:
+    get:
+      summary: Get Works by ID
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Update Works by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/works'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete Works by ID
+      responses:
+        '204':
+          description: Deleted
+openapi: 3.1.1
+components:
+  schemas:
+    person:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+        placeOfBirth:
+          type: string
+    company:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+    department:
+      type: object
+      properties:
+        name:
+          type: string
+    friend:
+      type: object
+      properties:
+        metOn:
+          type: string
+    works:
+      type: object
+      properties:
+        role:
+          type: string

@@ -6,7 +6,9 @@ A Domain-Specific Language (DSL) for Graph Data Models
 
 ## Overview
 
-gmdsl is a DSL and toolchain for defining, validating, and generating code for graph-based data models. It allows you to describe nodes, edges, types, and annotations in a concise, readable format, and then generate code or schema definitions for various platforms such as C# and Neo4j Cypher.
+`gmdsl` is a DSL and toolchain for defining, validating, and generating code for graph-based data models. It allows you to describe nodes, edges, types, and annotations in a concise, readable format, and then generate code or schema definitions for various platforms such as C# and Neo4j Cypher.
+
+[Blog post about how this came about](https://savas.me/2025/05/07/a-graph-model-dsl/).
 
 ## Features
 
@@ -19,9 +21,12 @@ gmdsl is a DSL and toolchain for defining, validating, and generating code for g
 ## Example DSL Usage
 
 ```gmdsl
-namespace BrainExpanded.GraphModel
+namespace Example
+
+// Import some core types for properties
 import GM.Core
 
+// New types can be declared for properties
 type Address {
     street: String
     city: String
@@ -30,14 +35,7 @@ type Address {
     country: String
 }
 
-type Company {
-    name: String
-    address: Address
-}
-
-type Department {
-    name: String
-}
+// Declare some graph nodes
 
 node Person {
     firstName: String
@@ -51,15 +49,23 @@ node Company {
     address: Address
 }
 
+// Department graph node
 node Department {
     name: String
 }
 
-edge Friend (Person <-> Person) {
+// Declare some edges. As per Neo4j's data model, edges may have
+// properties
+
+edge PartOf(Department -> Company) {
+    since: DateTime
+}
+
+edge Friend(Person <-> Person) {
     metOn: DateTime
 }
 
-edge WorksFor (Person -> Company) {
+edge Works(Person -> Company) {
     role: String
 }
 ```
@@ -82,19 +88,23 @@ type Location {
 
 ## Plugins
 
-gmdsl supports plugins for code and schema generation. The main plugins included are:
+`gmdsl` supports plugins for code and schema generation. The main plugins included are:
 
 ### C# Plugin
 
 - Generates C# classes for your graph model (nodes, types, edges)
 - Maps core types (GM.Core.String, GM.Core.Integer, etc.) to .NET types (string, int, etc.)
-- Skips generating C# classes for core types that map directly to .NET
 
 ### Cypher Plugin
 
 - Generates Neo4j Cypher schema constraints and index suggestions
 - Outputs constraints for node properties and relationship properties
 - Suggests indexes for common property types
+
+### OpenAPI PLugin
+
+- Generates an OpenAPI document for all nodes and edges in the graph model
+- Represents nodes and edges as HTTP resources
 
 ### Debug Plugin
 
@@ -109,7 +119,7 @@ gmdsl supports plugins for code and schema generation. The main plugins included
 If you don't have uv installed, you can install it with:
 
 ```sh
-curl -Ls https://astral.sh/uv/install.sh | sh
+> curl -Ls https://astral.sh/uv/install.sh | sh
 ```
 
 Or see the [uv installation guide](https://github.com/astral-sh/uv#installation) for more options.
@@ -119,13 +129,7 @@ Or see the [uv installation guide](https://github.com/astral-sh/uv#installation)
 From the root of your gmdsl project, run:
 
 ```sh
-uv pip install -r requirements.txt
-```
-
-Or, if you use a `pyproject.toml` (as in this project):
-
-```sh
-uv pip install -e .
+> uv pip install -e .
 ```
 
 This will install all dependencies in an isolated environment, similar to pip, but much faster.
@@ -135,7 +139,7 @@ This will install all dependencies in an isolated environment, similar to pip, b
 You can now use the `gmdsl` CLI as described above:
 
 ```sh
-gmdsl generate --plugin csharp --plugin cypher --input examples/MyGraphDataModel.gm --output generated/
+> gmdsl generate --plugin csharp --plugin cypher --input examples/MyGraphDataModel.gm --output ~/tmp/generated/
 ```
 
 ### 4. Running Tests
@@ -143,8 +147,8 @@ gmdsl generate --plugin csharp --plugin cypher --input examples/MyGraphDataModel
 To run the test suite with uv:
 
 ```sh
-uv pip install pytest
-pytest
+> uv pip install pytest
+> pytest
 ```
 
 ---
@@ -156,7 +160,7 @@ For more information on uv, see the [uv documentation](https://github.com/astral
 1. **Write your model** in the DSL (see examples above).
 2. **Run the CLI** to validate and generate code:
    ```sh
-   gmdsl generate --plugin csharp --plugin cypher --input examples/MyGraphDataModel.gm --output generated/
+   > gmdsl generate --plugin csharp --plugin cypher --input examples/MyGraphDataModel.gm --output generated/
    ```
 3. **Check the generated code** in the `generated/` directory.
 
@@ -164,7 +168,6 @@ For more information on uv, see the [uv documentation](https://github.com/astral
 
 - `src/gmdsl/` — Core source code, parser, validation, plugins
 - `examples/` — Example DSL files
-- `generated/` — Output directory for generated code and schemas
 - `tests/` — Unit tests
 
 ## Extending gmdsl

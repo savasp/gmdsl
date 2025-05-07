@@ -40,7 +40,18 @@ class CSharpGenerator(CodeGeneratorPlugin):
         **kwargs,
     ):
         """Generate C# code from the loaded ASTs."""
-        self.namespace = namespace or "GraphDataModel"
+        # Use provided namespace, or extract from first document, or fallback
+        if namespace is not None:
+            self.namespace = namespace
+        else:
+            # Try to get namespace from the first loaded AST document
+            first_doc = next(iter(loaded_asts.values()), None)
+            ns = None
+            if first_doc and getattr(first_doc, "namespace", None):
+                ns_decl = first_doc.namespace
+                if ns_decl and getattr(ns_decl, "name", None):
+                    ns = str(ns_decl.name)
+            self.namespace = ns or "GraphDataModel"
         self.loaded_asts = loaded_asts
 
         # Create output directory if it doesn't exist
@@ -137,7 +148,7 @@ class CSharpGenerator(CodeGeneratorPlugin):
 
                 cs_type = self._to_csharp_type(str(prop.type_name))
                 access = "{ get; }" if immutable else "{ get; set; }"
-                f.write(f"        public {cs_type} {prop.name} {access}\n\n")
+                f.write(f"        public {cs_type} {prop.name} {access}\n")
 
             f.write("    }\n")
             f.write("}")
@@ -173,8 +184,8 @@ class CSharpGenerator(CodeGeneratorPlugin):
             target_type = str(edge_decl.target_node)
             access = "{ get; }" if immutable else "{ get; set; }"
 
-            f.write(f"        public string SourceId {access}\n\n")
-            f.write(f"        public string TargetId {access}\n\n")
+            f.write(f"        public string SourceId {access}\n")
+            f.write(f"        public string TargetId {access}\n")
 
             # Add references to source and target objects if needed
             rel_annotation = self.get_annotation(edge_decl, "RelationshipType")
@@ -183,8 +194,8 @@ class CSharpGenerator(CodeGeneratorPlugin):
                 and self.get_annotation_arg_value(rel_annotation, 0, "Reference")
                 == "Navigation"
             ):
-                f.write(f"        public {source_type} Source {access}\n\n")
-                f.write(f"        public {target_type} Target {access}\n\n")
+                f.write(f"        public {source_type} Source {access}\n")
+                f.write(f"        public {target_type} Target {access}\n")
 
             # Add properties
             for prop in edge_decl.properties:
@@ -206,7 +217,7 @@ class CSharpGenerator(CodeGeneratorPlugin):
                     f.write(f'        [JsonPropertyName("{prop.name}")]\n')
 
                 cs_type = self._to_csharp_type(str(prop.type_name))
-                f.write(f"        public {cs_type} {prop.name} {access}\n\n")
+                f.write(f"        public {cs_type} {prop.name} {access}\n")
 
             f.write("    }\n")
             f.write("}")
@@ -261,7 +272,7 @@ class CSharpGenerator(CodeGeneratorPlugin):
 
                 cs_type = self._to_csharp_type(str(prop.type_name))
                 access = "{ get; }" if immutable else "{ get; set; }"
-                f.write(f"        public {cs_type} {prop.name} {access}\n\n")
+                f.write(f"        public {cs_type} {prop.name} {access}\n")
 
             f.write("    }\n")
             f.write("}")
